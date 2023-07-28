@@ -1,0 +1,243 @@
+---
+title: "Gravidez na adolescência"
+output:
+  pdf_document:
+    includes:
+      in_header: header.tex
+fontsize: 11pt
+---
+
+### Introdução^[Fábio Rocha - Economista | rochaviannafj@gmail.com]
+
+A gravidez na adolescencia é um problema de saúde pública e precisa ser rigorosamente debatido e enfrentado pela sociedade. Os principais problemas associados à gestação na adolescência incluem: gravidez de risco, isso porque como o corpo da adolescnete ainda não se encontra plenamente desenvolvido, o que faz com que ocorra uma sobrecarga no organismo comprometendo o desenvolvimento do feto e da adolescente. No caso do mal desenvolvimento do feto, este pode vir a desenvolver problemas motores e até mesmo associados a doenças relacionadas a doenças evitáveis. Ademais, outros problemas que decorrem da gravidez na adolescência é o fato da jovem ter de interromper sua formação educacional. Isso faz com que ela não tenha oportunidade de emprego e consequentemente ascensão social, o que evidentemente ocasionará problemas relacionados à saúde mental e financeira presente e futura da jovem.
+
+Este estudo tem por objetivo apresentar a evolução da gravidez na adolescência no Brasil, nos últimos dez anos consideradas características sócio-demográficas, além de possíveis propostas e/ou estratégias para incidir sobre esse problema.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Pacotes usados no estudo
+library(tidyverse)
+library(stargazer)
+library(lubridate)
+library(gt)
+library(glue)
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#  Carregamento dos dados
+
+nascimentos_2015_2021 = read.csv("nascimentos_2015_2021.csv")
+nascimentos_2012_2014 = read.csv("nascimentos_2012_2014.csv")
+dicionario = read.csv("dicionario.csv")
+
+nascimentos_2012_2021 = rbind(nascimentos_2012_2014, nascimentos_2015_2021)
+
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+
+# Selecionando as variáveis que serão utilizadas no estudo
+
+selecao_nascimentos_2012_2021 = nascimentos_2012_2021 %>%
+  select(ano,
+         idade_mae,
+         sigla_uf, 
+         sexo, 
+         peso, 
+         raca_cor, 
+         raca_cor_mae, 
+         semana_gestacao, 
+         escolaridade_2010_mae,
+         estado_civil_mae)
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Tratamento - substituição dos números pelos nomes
+
+selecao_nascimentos_2012_2021$sexo[selecao_nascimentos_2012_2021$sexo == "0"] = "Ignorada"
+selecao_nascimentos_2012_2021$sexo[selecao_nascimentos_2012_2021$sexo == "1"] = "Masculino"
+selecao_nascimentos_2012_2021$sexo[selecao_nascimentos_2012_2021$sexo == "2"] = "Feminino"
+ 
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+selecao_nascimentos_2012_2021$raca_cor[selecao_nascimentos_2012_2021$raca_cor == "1"] = "Branca"
+selecao_nascimentos_2012_2021$raca_cor[selecao_nascimentos_2012_2021$raca_cor == "2"] = "Preta"
+selecao_nascimentos_2012_2021$raca_cor[selecao_nascimentos_2012_2021$raca_cor == "3"] = "Amarela"
+selecao_nascimentos_2012_2021$raca_cor[selecao_nascimentos_2012_2021$raca_cor == "4"] = "Parda"
+selecao_nascimentos_2012_2021$raca_cor[selecao_nascimentos_2012_2021$raca_cor == "5"] = "Indigena"
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+selecao_nascimentos_2012_2021$raca_cor_mae[selecao_nascimentos_2012_2021$raca_cor_mae == "1"] = "Branca"
+selecao_nascimentos_2012_2021$raca_cor_mae[selecao_nascimentos_2012_2021$raca_cor_mae == "2"] = "Preta"
+selecao_nascimentos_2012_2021$raca_cor_mae[selecao_nascimentos_2012_2021$raca_cor_mae == "3"] = "Amarela"
+selecao_nascimentos_2012_2021$raca_cor_mae[selecao_nascimentos_2012_2021$raca_cor_mae == "4"] = "Parda"
+selecao_nascimentos_2012_2021$raca_cor_mae[selecao_nascimentos_2012_2021$raca_cor_mae == "5"] = "Indígena"
+selecao_nascimentos_2012_2021$raca_cor_mae[selecao_nascimentos_2012_2021$raca_cor_mae == "9"] = "Ignorada"
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "0"] = "Sem escolaridade"
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "1"] = "Fundamental I"
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "2"] = "Fundamental II"
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "3"] = "Médio "
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "4"] = "Superior inc"
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "5"] = "Superior com"
+selecao_nascimentos_2012_2021$escolaridade_2010_mae[selecao_nascimentos_2012_2021$escolaridade_2010_mae == "9"] = "Ignorado"
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+selecao_nascimentos_2012_2021$estado_civil_mae[selecao_nascimentos_2012_2021$estado_civil_mae == "1"] = "Solteira"
+selecao_nascimentos_2012_2021$estado_civil_mae[selecao_nascimentos_2012_2021$estado_civil_mae == "2"] = "Casada"
+selecao_nascimentos_2012_2021$estado_civil_mae[selecao_nascimentos_2012_2021$estado_civil_mae == "3"] = "Viúva"
+selecao_nascimentos_2012_2021$estado_civil_mae[selecao_nascimentos_2012_2021$estado_civil_mae == "4"] = "Separada judi/divor"
+selecao_nascimentos_2012_2021$estado_civil_mae[selecao_nascimentos_2012_2021$estado_civil_mae == "5"] = "União estável"
+selecao_nascimentos_2012_2021$estado_civil_mae[selecao_nascimentos_2012_2021$estado_civil_mae == "9"] = "Ignorada"
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# criação de variavel faixa etária
+
+selecao_nascimentos_2012_2021 = selecao_nascimentos_2012_2021 %>%
+  mutate(faixa_etaria = ifelse(idade_mae <= 14, "10-14", "15-19"))
+
+```
+
+### Número de nascidos no Brasil - Adolescentes 10 a 19 anos de idade
+
+O gráfico 1 sinaliza a evolução do número de nascidos vivos entre 2012 a 2020 entre adolescentes, ultimo dado disponível no SINASC. É notável a expressiva queda no número de ocorrencias no grupo etário em questão. Isso sinaliza que alguns esforços substantivos, pelo menos a priori, por parte dos governos estaduais, municipais e federal, no tocante a saúde do grupo etário, vem sendo debatido e pensado. Em alguma medida também é importante notar que a pirâmide demografica vem se modificando nos ultimos anos, isto é, a população jovem vem encolhendo e a polução adulta e idosa aumentando.
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.width=14, fig.height=4,}
+
+selecao_nascimentos_2012_2021 %>%
+  count(ano) %>%
+  ggplot(aes(x=ano, 
+             y=n,
+             color=ano))+
+  geom_line()+
+  labs(title = "Gráfico 1 - Número de nascidos no Brasil - Adolescentes 10 a 19 anos de idade",
+       subtitle = "2012-2021",
+       x = "Idade",
+       y = "",
+       caption = "Fonte: DATASUS - SINASC")+
+  theme_bw()+
+  theme(legend.position = "none")
+
+```
+
+A tabela 1 sinaliza essas ocorrências por estado e a variação entre 2012 e 2020. O unico estado que apresentou um crescimento no período considerado foi Roraima. Isso sinaliza que esforços precisam ser empreendido em maior medida no estado em questão. Em contraste, o estado que apresentou maior queda foi o PR (42,03%), seguido do SP (40,72%) e RS (39,89%). 
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.width=14, fig.height=7}
+
+tabela_estados = selecao_nascimentos_2012_2021 %>%
+  count(ano, sigla_uf) 
+
+tabela_estados = tabela_estados %>%
+  pivot_wider(names_from = "ano", values_from = n) 
+
+tabela_estados = tabela_estados %>%
+  mutate(`%` = ((`2020`/`2012`)-1)*100)
+
+
+tabela_estados %>%
+  gt(groupname_col = "") %>%
+  tab_header(title = md("**Tabela 1 - Nº de nascimentos por ano e estados e variação %**")) %>%
+  tab_source_note(md("**Dados**: Sinasc | **Elaboração**: própria")) %>%
+  cols_label(sigla_uf = "UF",
+             `2012` = "2012",
+             `2013` = "2013",
+             `2014` = "2014",
+             `2015` = "2015",
+             `2016` = "2016",
+             `2017` = "2017",
+             `2018` = "2018",
+             `2019` = "2019",
+             `2020` = "2020",
+             `%` = "Var (%)")
+  
+```
+
+
+```{r, eval=FALSE, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.width=16, fig.height=7.5}
+
+selecao_nascimentos_2012_2021 %>%
+  count(ano, sigla_uf) %>%
+  ggplot(aes(x=ano, 
+             y=n,
+             color=sigla_uf))+
+  geom_line()+
+  facet_wrap(~sigla_uf, scales = "free")+
+  labs(title = "Grafico 2 - Número de nascidos vivos entre adolescentes por estado",
+       subtitle = "2012-2021",
+       x = "Idade",
+       y = "",
+       caption = "Fonte: DATASUS - SINASC")+
+  theme_bw()+
+  theme(legend.position = "none")
+
+```
+
+### Recorte sociodemográfico
+
+Quanto ao recorte sociodemográfico e etário, considerando toda a séria - 2012 a 2020 - constata-se a discrepância de ocorrências de gravidez entre adolescentes com idade 10-14 de raça/cor parda e preta na condição solteira 3 vezes maior do que jovens brancas. O mesmo ocorre para jovens com idade 15-19.
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.width=14, fig.height=6,}
+
+tabela_sociodemografica = selecao_nascimentos_2012_2021 %>%
+  count(faixa_etaria, estado_civil_mae, raca_cor_mae)
+
+tabela_sociodemografica = tabela_sociodemografica %>%
+  pivot_wider(names_from = "raca_cor_mae", values_from = "n")
+
+tabela_sociodemografica %>%
+  gt(groupname_col = "") %>%
+  tab_header(title = md("**Tabela 2 - Nº de nascimentos por estado civil e raça/cor da mãe**")) %>%
+  tab_source_note(md("**Dados**: Sinasc | **Elaboração**: própria")) %>%
+  cols_label(faixa_etaria = "Idade",
+             estado_civil_mae = "Estado Civil")
+
+```
+
+### Recorte sociodemográfico - educação da mãe
+
+No recorte educacional fica a nítido a predominância de jovens pardas e pretas 7 vezes maior do que brancas considerando Fundamental I, Fundamental II e Sem escolaridade. Ao mesmo tempo são maioria em escolaridade média. O que sinaliza que o fenomeno analisado parece afetar em maior proporções jovens pardas e pretas, em alguma medida em todos os níveis de escolaridade mas de forma mais acentuada entre a 5ª e 8ª série.
+
+No recorte 15-19 as diferenças entre jovens com escolaridade superior completo e incomleto é muito menor entre brancas e pardas. Importante notar que no período em questão houve políticas afirmativas de inserção de jovens pretos, pardos e indigenas nas universidades, é provavel, portanto que tais políticas tenham impactado positivamente na reduçao de tais diferenças, além de reduzir expressivamente as ocorrencias para o grupo com mais escolaridade.
+
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.width=14, fig.height=6,}
+
+tabela_sociodemografica_educ = selecao_nascimentos_2012_2021 %>%
+  count(faixa_etaria, raca_cor_mae, escolaridade_2010_mae)
+
+tabela_sociodemografica_educ = tabela_sociodemografica_educ %>%
+  pivot_wider(names_from = "raca_cor_mae", values_from = "n")
+
+tabela_sociodemografica_educ %>%
+  gt(groupname_col = "") %>%
+  tab_header(title = md("**Tabela 3 - Nº de nascimentos por escolaridade e raça/cor da mãe**")) %>%
+  tab_source_note(md("**Dados**: Sinasc | **Elaboração**: própria")) %>%
+  cols_label(faixa_etaria = "Idade",
+             escolaridade_2010_mae = "Escolaridade")
+
+```
+
+### Políticas públicas
+
+Coforme orienta o Ministério da Saúde e literatura especializada ^[https://bvsms.saude.gov.br/01-a-08-02-semana-nacional-de-prevencao-da-gravidez-na-adolescencia/] "*Um dos mais importantes fatores de prevenção é a educação. Educação sexual integrada e compreensiva faz parte da promoção do bem-estar de adolescentes e jovens ao realçar a importância do comportamento sexual responsável, o respeito pelo/a outro/a, a igualdade e equidade de gênero, assim como a proteção da gravidez inoportuna, a prevenção de infecções sexualmente transmissíveis/HIV, a defesa contra violência sexual incestuosa, bem como outras violências e abusos.Organizações internacionais como a Organização Mundial de Saúde (OMS) e o Fundo de População das Nações Unidas (UNFPA) orientam que os guias metodológicos e operacionais sejam fundamentados em princípios e valores dos direitos humanos e sexuais, sem distinção étnica, de gênero, religiosa, econômica ou social, com o uso de informações exatas e cuidadosas, cientificamente comprovadas. A garantia de desenvolvimento integral na adolescência e juventude é uma responsabilidade coletiva que precisa unir família, escola e sociedade para articular-se com órgãos e instituições, públicas e privadas na formulação de políticas públicas de atenção integral à saúde em todos os níveis de complexidade, embasando-se em situações epidemiológicas, indicadores e demandas sociais, respeitando os princípios do Sistema Único de Saúde.*"
+
+Essa recomendação converge para o que os dados aqui reportados indicam e foi apresentado na tabela 3. Isto é, as diferenças de ocorrências de gravidez na gestação são disparadamente maiores para jovens pretas e pardas comparativamente a brancas, entretanto, diminui expressivamente quando a escolaridade é superior completo ou incompleto. Portanto, o enfoque da política publica educativa deve ser pensado para jovens pretos e pardas e principalmete no estado de Roraima onde o dado mostrou ter ocorrido aumento do numero de ocorrencias nos ultimos 10 anos.
+
